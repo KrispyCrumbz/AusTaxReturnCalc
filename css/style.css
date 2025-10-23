@@ -261,13 +261,19 @@ body {
   font-size: 15px;
 }
 
+.siteFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: 15px 0;
+  background: white;
+  color: forestgreen;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-top: 2px solid #145214;
 
-
-
-
-
-
-
-
+}
 
 
