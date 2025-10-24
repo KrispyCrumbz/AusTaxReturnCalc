@@ -21,7 +21,7 @@ export function calcTax(income) {
   return tax;
 }
 
-export function calcAnnualMls(mlsIncome, mlsStatus, dependents, mlsExempt) {
+export function calcAnnualMls(mlsIncome, mlsStatus, dependents, mlsExempt, income) {
   let mlsAnnual = 0;
   let mlsDependents = 0;
 
@@ -40,13 +40,13 @@ export function calcAnnualMls(mlsIncome, mlsStatus, dependents, mlsExempt) {
     let tier2 = 316000 + (1500 * mlsDependents);
 
     if (mlsIncome <= baseTier) {
-      mlsAnnual = mlsIncome * 0.00;
+      mlsAnnual = income * 0.00;
     } else if (mlsIncome <= tier1) {
-      mlsAnnual = mlsIncome * 0.01;
+      mlsAnnual = income * 0.01;
     } else if (mlsIncome <= tier2) {
-      mlsAnnual = mlsIncome * 0.0125;
+      mlsAnnual = income * 0.0125;
     } else {
-      mlsAnnual = mlsIncome * 0.015;
+      mlsAnnual = income * 0.015;
     }
   }
 
@@ -55,13 +55,13 @@ export function calcAnnualMls(mlsIncome, mlsStatus, dependents, mlsExempt) {
   if (mlsStatus == "single") {
 
     if (mlsIncome <= 101000) {
-      mlsAnnual = mlsIncome * 0.00;
+      mlsAnnual = income * 0.00;
     } else if (mlsIncome <= 118000) {
-      mlsAnnual = mlsIncome * 0.01;
+      mlsAnnual = income * 0.01;
     } else if (mlsIncome <= 158000) {
-      mlsAnnual = mlsIncome * 0.0125;
+      mlsAnnual = income * 0.0125;
     } else {
-      mlsAnnual = mlsIncome * 0.015;
+      mlsAnnual = income * 0.015;
     }
   }
 

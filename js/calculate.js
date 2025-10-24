@@ -12,7 +12,7 @@ let mlsIncome = income + householdIncome;
 
 let tax = calcTax(income);
 
-let mls = calcAnnualMls(mlsIncome, mlsStatus, dependents, mlsExempt);
+let mls = calcAnnualMls(mlsIncome, mlsStatus, dependents, mlsExempt, income);
 
 let totalAmountOwed = tax + mls;
 
