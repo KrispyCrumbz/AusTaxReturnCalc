@@ -87,7 +87,7 @@ function updateMlsAfterDeduction() {
   // MLS uses household income plus your taxable income
   const newMlsIncome = taxableIncome + householdIncome;
 
-  const mlsValue = calcAnnualMls(newMlsIncome, mlsStatus, dependents, mlsExempt);
+  const mlsValue = calcAnnualMls(newMlsIncome, mlsStatus, dependents, mlsExempt, income);
 
   mlsAfterDeduction.textContent = mlsValue.toLocaleString();
 }
