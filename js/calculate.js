@@ -115,6 +115,27 @@ function updateTotalOwed() {
 // Initial calculation
 updateTotalOwed();
 
+// Grab the total span
+const incomeAfterDeductionSpan = document.getElementById('totalIncomeAfterDeduction');
+
+function updateIncomeAfterDeduction() {
+  // Get the numbers from the spans, remove commas
+  const deduction = Number(document.getElementById('deductionDisplay').textContent.replace(/,/g, '')) || 0;
+
+  const incomeAfterDeduction = income - deduction;
+
+  incomeAfterDeductionSpan.textContent = incomeAfterDeduction.toLocaleString();
+}
+
+// Initial calculation
+updateIncomeAfterDeduction();
+
+// Update whenever slider/number input changes
+slider.addEventListener('input', updateIncomeAfterDeduction);
+numberInput.addEventListener('input', updateTotalOwed);
+
+
+
 // Update whenever slider/number input changes
 slider.addEventListener('input', updateTotalOwed);
 numberInput.addEventListener('input', updateTotalOwed);
@@ -165,6 +186,9 @@ updateTaxReturn();
 // Update whenever slider or number input changes
 slider.addEventListener('input', updateTaxReturn);
 numberInput.addEventListener('input', updateTaxReturn);
+
+
+
 
 
 

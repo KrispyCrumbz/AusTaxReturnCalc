@@ -25,7 +25,7 @@
       <p><b>Tax Return Before Deductions:</b><br>$<span id="taxReturnDisplay"></span></p>
 
       <div class="myDiv">
-        <button class="submitButton" onclick="localStorage.clear(); window.location.href='index.html'">
+        <button class="submitButton" onclick="window.location.href='index.html'">
           Calculate Again
         </button>
       </div>
@@ -44,6 +44,7 @@
           </div>
 
           <p><b>Selected Deduction:</b><br>$<span id="deductionDisplay">0</span></p>
+          <p><b>Taxable income After Deduction</b><br><span id="totalIncomeAfterDeduction">0</span></p>
 
           <!-- Realtime calculations -->
           <p><b>Estimated Tax After Deduction:</b><br>$<span id="taxAfterDeduction">0</span></p>
