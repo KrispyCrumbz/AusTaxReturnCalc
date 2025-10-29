@@ -115,10 +115,16 @@ function createCategory() {
     const removeCategoryBtn = categoryDiv.querySelector(".removeCategoryBtn");
     const deductionList = categoryDiv.querySelector(".deductionList");
     const header = categoryDiv.querySelector(".categoryHeader");
+    const titleInput = categoryDiv.querySelector(".categoryName");
 
-    // === Collapse toggle on header click (excluding buttons) ===
+    // === Stop input clicks from toggling collapse ===
+    titleInput.addEventListener("click", (e) => e.stopPropagation());
+    titleInput.addEventListener("focus", (e) => e.stopPropagation());
+    titleInput.addEventListener("mousedown", (e) => e.stopPropagation()); // optional for some browsers
+
+    // === Collapse toggle on header click (excluding buttons & input) ===
     header.addEventListener("click", (e) => {
-        if (!e.target.closest("button")) { // ignore clicks on buttons
+        if (!e.target.closest("button") && !e.target.closest("input")) {
             categoryDiv.classList.toggle("collapsed");
         }
     });
@@ -146,6 +152,7 @@ function createCategory() {
     deductionContainer.appendChild(categoryDiv);
     return categoryDiv;
 }
+
 
 
 // === Create a lonely deduction ===
