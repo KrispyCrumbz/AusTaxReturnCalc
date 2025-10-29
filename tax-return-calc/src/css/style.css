@@ -70,6 +70,15 @@ body {
   height: 800px;
 }
 
+.deductionsDiv {
+  background: #f6f6f6;
+  padding: 40px;
+  border-radius: 10px;
+  text-align: left;
+  flex: 2;
+  height: 400px;
+}
+
 .formDiv {
   background: white;
   padding: 40px;
