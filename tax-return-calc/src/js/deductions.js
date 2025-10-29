@@ -11,6 +11,31 @@ function formatNumber(num) {
     return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// Format date to Australian style: DD/MM/YYYY
+function formatDateAU(dateStr) {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+}
+
+// Convert AU format (DD/MM/YYYY) to ISO (YYYY-MM-DD)
+function auToIsoDate(auDate) {
+    if (!auDate) return "";
+    const parts = auDate.split("/");
+    if (parts.length !== 3) return "";
+    const [day, month, year] = parts;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+// Convert ISO (YYYY-MM-DD) to AU (DD/MM/YYYY)
+function isoToAuDate(isoDate) {
+    if (!isoDate) return "";
+    const [year, month, day] = isoDate.split("-");
+    return `${day}/${month}/${year}`;
+}
+
+
+
 // === Update overall total ===
 function updateOverallTotal() {
     let total = 0;
@@ -39,6 +64,7 @@ function createDeduction(updateCategoryCallback) {
         <input type="date">
         <button class="removeDeductionBtn">✖</button>
     `;
+
 
     const amountInput = deductionRow.querySelector('input[type="number"]');
     const removeBtn = deductionRow.querySelector(".removeDeductionBtn");
@@ -127,14 +153,27 @@ function createLonelyDeduction(prefillData = null) {
     const lonelyDiv = document.createElement("div");
     lonelyDiv.classList.add("lonelyDeduction");
 
-    const title = document.createElement("h3");
-    title.textContent = "Lonely Deduction";
+    // Header (title + remove button)
+    const header = document.createElement("div");
+    header.classList.add("lonelyHeader");
+    header.innerHTML = `
+        <h3 class="lonelyTitle">Lonely Deduction</h3>
+        <button class="removeLonelyBtn removeCategoryBtn">✖</button>
+    `;
 
     const deductionRow = createDeduction(() => updateOverallTotal());
     const nameInput = deductionRow.querySelector('input[type="text"]');
     const amountInput = deductionRow.querySelector('input[type="number"]');
     const receiptInput = deductionRow.querySelectorAll("input")[2];
     const dateInput = deductionRow.querySelectorAll("input")[3];
+
+    // Hide the inner remove button (from the single deduction row)
+    const innerRemoveBtn = deductionRow.querySelector(".removeDeductionBtn");
+    if (innerRemoveBtn) innerRemoveBtn.style.display = "none";
+
+
+    const title = header.querySelector(".lonelyTitle");
+    const removeLonelyBtn = header.querySelector(".removeLonelyBtn");
 
     function updateTitle() {
         const name = nameInput.value || "Lonely Deduction";
@@ -145,13 +184,12 @@ function createLonelyDeduction(prefillData = null) {
     nameInput.addEventListener("input", updateTitle);
     amountInput.addEventListener("input", updateTitle);
 
-    const removeBtn = deductionRow.querySelector(".removeDeductionBtn");
-    removeBtn.addEventListener("click", () => {
+    removeLonelyBtn.addEventListener("click", () => {
         lonelyDiv.remove();
         updateOverallTotal();
     });
 
-    // ✅ prefill data if provided
+    // ✅ Prefill data if provided
     if (prefillData) {
         nameInput.value = prefillData.name;
         amountInput.value = prefillData.amount;
@@ -160,10 +198,12 @@ function createLonelyDeduction(prefillData = null) {
         updateTitle();
     }
 
-    lonelyDiv.appendChild(title);
+    lonelyDiv.appendChild(header);
     lonelyDiv.appendChild(deductionRow);
     deductionContainer.appendChild(lonelyDiv);
 }
+
+
 
 // === Save all data to localStorage ===
 function getAllDeductionsData() {
@@ -268,9 +308,9 @@ saveCsvBtn.addEventListener("click", () => {
     // Add categories
     data.categories.forEach(cat => {
         csvContent += `Category: ${cat.name}\n`;
-        csvContent += "Deduction Name, Amount, Receipt #, Date\n";
+        csvContent += "Deduction Name, Amount, Receipt #, Date (dd/mm/yyyy)\n";
         cat.deductions.forEach(d => {
-            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${d.date}\n`;
+            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${formatDateAU(d.date)}\n`;
         });
         csvContent += `Category Total:, ${formatNumber(cat.total)}\n`;
         csvContent += "----------------------------------------\n\n";
@@ -281,7 +321,7 @@ saveCsvBtn.addEventListener("click", () => {
         csvContent += "Lonely Deductions:\n";
         csvContent += "Deduction Name, Amount, Receipt #, Date\n";
         data.lonelyDeductions.forEach(d => {
-            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${d.date}\n`;
+            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${formatDateAU(d.date)}\n`;
         });
         const lonelyTotal = data.lonelyDeductions.reduce((sum, d) => sum + d.amount, 0);
         csvContent += `Lonely Total:, ${formatNumber(lonelyTotal)}\n`;
