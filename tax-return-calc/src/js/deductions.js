@@ -1,3 +1,5 @@
+import { updateWithDeductions } from './calculate.js';
+
 const deductionContainer = document.getElementById("deductionContainer");
 const addCategoryBtn = document.getElementById("addCategoryBtn");
 const addLonelyDeductionBtn = document.getElementById("addLonelyDeductionBtn");
@@ -8,6 +10,31 @@ const saveToLocalBtn = document.getElementById("saveToLocalBtn");
 function formatNumber(num) {
     return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
+// Format date to Australian style: DD/MM/YYYY
+function formatDateAU(dateStr) {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+}
+
+// Convert AU format (DD/MM/YYYY) to ISO (YYYY-MM-DD)
+function auToIsoDate(auDate) {
+    if (!auDate) return "";
+    const parts = auDate.split("/");
+    if (parts.length !== 3) return "";
+    const [day, month, year] = parts;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+// Convert ISO (YYYY-MM-DD) to AU (DD/MM/YYYY)
+function isoToAuDate(isoDate) {
+    if (!isoDate) return "";
+    const [year, month, day] = isoDate.split("-");
+    return `${day}/${month}/${year}`;
+}
+
+
 
 // === Update overall total ===
 function updateOverallTotal() {
@@ -22,6 +49,7 @@ function updateOverallTotal() {
     });
 
     overallTotalDisplay.textContent = formatNumber(total);
+    updateWithDeductions(total);
 }
 
 // === Create a single deduction row ===
@@ -36,6 +64,7 @@ function createDeduction(updateCategoryCallback) {
         <input type="date">
         <button class="removeDeductionBtn">✖</button>
     `;
+
 
     const amountInput = deductionRow.querySelector('input[type="number"]');
     const removeBtn = deductionRow.querySelector(".removeDeductionBtn");
@@ -74,7 +103,8 @@ function createCategory() {
     categoryDiv.innerHTML = `
         <div class="categoryHeader">
             <input type="text" placeholder="Category Name..." class="categoryName">
-            <button class="addDeductionBtn">+ Add Deduction</button>
+            <span class="collapseIcon">▼</span>
+            <button class="addDeductionBtn">+ Deduction</button>
             <button class="removeCategoryBtn">✖</button>
         </div>
         <div class="deductionList"></div>
@@ -84,14 +114,24 @@ function createCategory() {
     const addDeductionBtn = categoryDiv.querySelector(".addDeductionBtn");
     const removeCategoryBtn = categoryDiv.querySelector(".removeCategoryBtn");
     const deductionList = categoryDiv.querySelector(".deductionList");
+    const header = categoryDiv.querySelector(".categoryHeader");
 
-    addDeductionBtn.addEventListener("click", () => {
+    // === Collapse toggle on header click (excluding buttons) ===
+    header.addEventListener("click", (e) => {
+        if (!e.target.closest("button")) { // ignore clicks on buttons
+            categoryDiv.classList.toggle("collapsed");
+        }
+    });
+
+    addDeductionBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // prevent header toggle
         deductionList.appendChild(createDeduction(() => updateCategoryTotal(categoryDiv)));
         updateCategoryTotal(categoryDiv);
         updateOverallTotal();
     });
 
-    removeCategoryBtn.addEventListener("click", () => {
+    removeCategoryBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // prevent header toggle
         const hasDeductions = deductionList.children.length > 0;
         if (hasDeductions) {
             const confirmDelete = confirm(
@@ -104,16 +144,22 @@ function createCategory() {
     });
 
     deductionContainer.appendChild(categoryDiv);
-    return categoryDiv; // ✅ return it so we can reuse in loading
+    return categoryDiv;
 }
+
 
 // === Create a lonely deduction ===
 function createLonelyDeduction(prefillData = null) {
     const lonelyDiv = document.createElement("div");
     lonelyDiv.classList.add("lonelyDeduction");
 
-    const title = document.createElement("h3");
-    title.textContent = "New Deduction";
+    // Header (title + remove button)
+    const header = document.createElement("div");
+    header.classList.add("lonelyHeader");
+    header.innerHTML = `
+        <h3 class="lonelyTitle">Lonely Deduction</h3>
+        <button class="removeLonelyBtn removeCategoryBtn">✖</button>
+    `;
 
     const deductionRow = createDeduction(() => updateOverallTotal());
     const nameInput = deductionRow.querySelector('input[type="text"]');
@@ -121,8 +167,16 @@ function createLonelyDeduction(prefillData = null) {
     const receiptInput = deductionRow.querySelectorAll("input")[2];
     const dateInput = deductionRow.querySelectorAll("input")[3];
 
+    // Hide the inner remove button (from the single deduction row)
+    const innerRemoveBtn = deductionRow.querySelector(".removeDeductionBtn");
+    if (innerRemoveBtn) innerRemoveBtn.style.display = "none";
+
+
+    const title = header.querySelector(".lonelyTitle");
+    const removeLonelyBtn = header.querySelector(".removeLonelyBtn");
+
     function updateTitle() {
-        const name = nameInput.value || "New Deduction";
+        const name = nameInput.value || "Lonely Deduction";
         const amount = parseFloat(amountInput.value) || 0;
         title.textContent = `${name} - $${formatNumber(amount)}`;
     }
@@ -130,13 +184,12 @@ function createLonelyDeduction(prefillData = null) {
     nameInput.addEventListener("input", updateTitle);
     amountInput.addEventListener("input", updateTitle);
 
-    const removeBtn = deductionRow.querySelector(".removeDeductionBtn");
-    removeBtn.addEventListener("click", () => {
+    removeLonelyBtn.addEventListener("click", () => {
         lonelyDiv.remove();
         updateOverallTotal();
     });
 
-    // ✅ prefill data if provided
+    // ✅ Prefill data if provided
     if (prefillData) {
         nameInput.value = prefillData.name;
         amountInput.value = prefillData.amount;
@@ -145,10 +198,12 @@ function createLonelyDeduction(prefillData = null) {
         updateTitle();
     }
 
-    lonelyDiv.appendChild(title);
+    lonelyDiv.appendChild(header);
     lonelyDiv.appendChild(deductionRow);
     deductionContainer.appendChild(lonelyDiv);
 }
+
+
 
 // === Save all data to localStorage ===
 function getAllDeductionsData() {
@@ -204,32 +259,103 @@ saveToLocalBtn.addEventListener("click", () => {
 
 // === Load saved data on page load ===
 window.addEventListener("DOMContentLoaded", () => {
+    // --- Existing load logic ---
     const saved = localStorage.getItem("deductionsData");
-    if (!saved) return;
+    if (saved) {
+        const data = JSON.parse(saved);
 
-    const data = JSON.parse(saved);
+        // Rebuild categories
+        data.categories.forEach(category => {
+            const categoryDiv = createCategory();
+            categoryDiv.querySelector(".categoryName").value = category.name;
 
-    // Rebuild categories
-    data.categories.forEach(category => {
-        const categoryDiv = createCategory();
-        categoryDiv.querySelector(".categoryName").value = category.name;
+            const deductionList = categoryDiv.querySelector(".deductionList");
+            category.deductions.forEach(d => {
+                const row = createDeduction(() => updateCategoryTotal(categoryDiv));
+                const inputs = row.querySelectorAll("input");
+                inputs[0].value = d.name;
+                inputs[1].value = d.amount;
+                inputs[2].value = d.receipt;
+                inputs[3].value = d.date;
+                deductionList.appendChild(row);
+            });
 
-        const deductionList = categoryDiv.querySelector(".deductionList");
-        category.deductions.forEach(d => {
-            const row = createDeduction(() => updateCategoryTotal(categoryDiv));
-            const inputs = row.querySelectorAll("input");
-            inputs[0].value = d.name;
-            inputs[1].value = d.amount;
-            inputs[2].value = d.receipt;
-            inputs[3].value = d.date;
-            deductionList.appendChild(row);
+            updateCategoryTotal(categoryDiv);
         });
 
-        updateCategoryTotal(categoryDiv);
+        // Rebuild lonely deductions
+        data.lonelyDeductions.forEach(d => createLonelyDeduction(d));
+        updateOverallTotal();
+    }
+
+    // --- ✅ Attach button event listeners here ---
+    document.getElementById("addCategoryBtn").addEventListener("click", createCategory);
+    document.getElementById("addLonelyDeductionBtn").addEventListener("click", () => createLonelyDeduction());
+});
+
+
+const saveCsvBtn = document.getElementById("saveCsvBtn");
+
+saveCsvBtn.addEventListener("click", () => {
+    const data = getAllDeductionsData();
+
+    let csvContent = "";
+    csvContent += "Taxpert - Deduction Summary\n";
+    csvContent += "Created by: Yash Kishore\n";
+    csvContent += "Email: yashkishore132@gmail.com\n";
+    csvContent += "----------------------------------------\n\n";
+
+    // Add categories
+    data.categories.forEach(cat => {
+        csvContent += `Category: ${cat.name}\n`;
+        csvContent += "Deduction Name, Amount, Receipt #, Date (dd/mm/yyyy)\n";
+        cat.deductions.forEach(d => {
+            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${formatDateAU(d.date)}\n`;
+        });
+        csvContent += `Category Total:, ${formatNumber(cat.total)}\n`;
+        csvContent += "----------------------------------------\n\n";
     });
 
-    // Rebuild lonely deductions
-    data.lonelyDeductions.forEach(d => createLonelyDeduction(d));
+    // Add lonely deductions (no category)
+    if (data.lonelyDeductions.length > 0) {
+        csvContent += "Lonely Deductions:\n";
+        csvContent += "Deduction Name, Amount, Receipt #, Date\n";
+        data.lonelyDeductions.forEach(d => {
+            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${formatDateAU(d.date)}\n`;
+        });
+        const lonelyTotal = data.lonelyDeductions.reduce((sum, d) => sum + d.amount, 0);
+        csvContent += `Lonely Total:, ${formatNumber(lonelyTotal)}\n`;
+        csvContent += "----------------------------------------\n\n";
+    }
 
+    // Add overall total
+    csvContent += `Overall Total:, ${formatNumber(data.overallTotal)}\n`;
+
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Taxpert_Deductions.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+const clearLocalBtn = document.getElementById("clearLocalBtn");
+
+clearLocalBtn.addEventListener("click", () => {
+    const confirmClear = confirm("Are you sure you want to clear all saved deductions?");
+    if (!confirmClear) return;
+
+    localStorage.removeItem("deductionsData");  // Remove from local storage
+    alert("✅ All saved deductions cleared!");
+
+    // Optional: clear the UI
+    deductionContainer.innerHTML = "";
     updateOverallTotal();
 });
+
+
+
+
