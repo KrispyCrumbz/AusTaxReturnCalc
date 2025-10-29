@@ -6,6 +6,7 @@
   <title>Tax Results</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/deductions.css">
+
 </head>
 <body>
 <div class="myDiv">
@@ -46,7 +47,7 @@
         <br>
         <div class="myDiv">
           <button id="saveToLocalBtn" class="submitButton">Save to Local Storage</button>
-          <button id="saveCsvBtn" class="submitButton">Save as CSV</button>
+          <button id="saveCsvBtn" class="submitButton">Save Spreadsheet</button>
           <button id="clearLocalBtn" class="removeDeductionBtn">Clear Local Storage</button>
         </div>
 
@@ -74,7 +75,15 @@
 
 <script type="module" src="../js/calculate.js"></script>
 <script type="module" src="../js/deductions.js"></script>
-<scrip type="module" src="../js/saveCSV.js"></scrip>
+
+<!-- Add CDN for xlsx-js-style -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style/dist/xlsx.bundle.min.js"></script>
+
+<!-- Then your script without ES module import -->
+<script src="../js/saveCSV.js"></script>
+
+
+
 
 </body>
 </html>
