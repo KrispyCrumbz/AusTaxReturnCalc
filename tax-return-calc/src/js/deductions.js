@@ -212,7 +212,7 @@ function createLonelyDeduction(prefillData = null) {
 
 
 
-// === Save all data to localStorage ===
+// === Save all data to localStorage
 export function getAllDeductionsData() {
     const data = {
         categories: [],
@@ -228,11 +228,12 @@ export function getAllDeductionsData() {
             const inputs = row.querySelectorAll("input");
             const [nameInput, amountInput, receiptInput, dateInput] = inputs;
 
+            let dateValue = dateInput.value ? new Date(dateInput.value) : null;
             deductions.push({
                 name: nameInput.value || "",
                 amount: parseFloat(amountInput.value) || 0,
                 receipt: receiptInput.value || "",
-                date: dateInput.value || ""
+                date: dateValue ? dateValue.toISOString().split("T")[0] : "" // YYYY-MM-DD
             });
         });
 
@@ -245,11 +246,12 @@ export function getAllDeductionsData() {
         const inputs = row.querySelectorAll("input");
         const [nameInput, amountInput, receiptInput, dateInput] = inputs;
 
+        let dateValue = dateInput.value ? new Date(dateInput.value) : null;
         const deduction = {
             name: nameInput.value || "",
             amount: parseFloat(amountInput.value) || 0,
             receipt: receiptInput.value || "",
-            date: dateInput.value || ""
+            date: dateValue ? dateValue.toISOString().split("T")[0] : ""
         };
         data.lonelyDeductions.push(deduction);
         data.overallTotal += deduction.amount;
@@ -258,11 +260,13 @@ export function getAllDeductionsData() {
     return data;
 }
 
+// === Save button handler ===
 saveToLocalBtn.addEventListener("click", () => {
     const data = getAllDeductionsData();
     localStorage.setItem("deductionsData", JSON.stringify(data));
     alert("✅ Deductions saved to local storage!");
 });
+
 
 // === Load saved data on page load ===
 window.addEventListener("DOMContentLoaded", () => {
