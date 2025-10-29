@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tax Results</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/deductions.css">
 </head>
 <body>
 <div class="myDiv">
@@ -34,15 +35,18 @@
     <div class="brainFormDiv">
       <h2>Deductions:</h2>
       <div class="deductionsDiv">
-
+        <div class="deductionButtons">
+          <button class="submitButton" id="addCategoryBtn">+ Add Category</button>
+          <button class="submitButton" id="addLonelyDeductionBtn">+ Add Lonely Deduction</button>
+        </div>
+        <div id="deductionContainer"></div>
+        <div class="deductionTotal">
+          <strong>Total Deductions: $<span id="overallTotal">0.00</span></strong>
+        </div>
       </div>
-
-
 
     </div>
   </div>
-
-
 
 </div>
 
@@ -50,9 +54,8 @@
   <p>Created by Yash Kishore | <a href="mailto:yashkishore132@gmail.com">yashkishore132@gmail.com</a></p>
 </footer>
 
-
 <script type="module" src="../js/calculate.js"></script>
-
+<script type="module" src="../js/deductions.js"></script>
 
 </body>
 </html>
