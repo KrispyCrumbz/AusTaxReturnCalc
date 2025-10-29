@@ -206,7 +206,7 @@ function createLonelyDeduction(prefillData = null) {
 
 
 // === Save all data to localStorage ===
-function getAllDeductionsData() {
+export function getAllDeductionsData() {
     const data = {
         categories: [],
         lonelyDeductions: [],
@@ -293,55 +293,6 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("addLonelyDeductionBtn").addEventListener("click", () => createLonelyDeduction());
 });
 
-
-const saveCsvBtn = document.getElementById("saveCsvBtn");
-
-saveCsvBtn.addEventListener("click", () => {
-    const data = getAllDeductionsData();
-
-    let csvContent = "";
-    csvContent += "Taxpert - Deduction Summary\n";
-    csvContent += "Created by: Yash Kishore\n";
-    csvContent += "Email: yashkishore132@gmail.com\n";
-    csvContent += "----------------------------------------\n\n";
-
-    // Add categories
-    data.categories.forEach(cat => {
-        csvContent += `Category: ${cat.name}\n`;
-        csvContent += "Deduction Name, Amount, Receipt #, Date (dd/mm/yyyy)\n";
-        cat.deductions.forEach(d => {
-            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${formatDateAU(d.date)}\n`;
-        });
-        csvContent += `Category Total:, ${formatNumber(cat.total)}\n`;
-        csvContent += "----------------------------------------\n\n";
-    });
-
-    // Add lonely deductions (no category)
-    if (data.lonelyDeductions.length > 0) {
-        csvContent += "Lonely Deductions:\n";
-        csvContent += "Deduction Name, Amount, Receipt #, Date\n";
-        data.lonelyDeductions.forEach(d => {
-            csvContent += `${d.name}, ${formatNumber(d.amount)}, ${d.receipt}, ${formatDateAU(d.date)}\n`;
-        });
-        const lonelyTotal = data.lonelyDeductions.reduce((sum, d) => sum + d.amount, 0);
-        csvContent += `Lonely Total:, ${formatNumber(lonelyTotal)}\n`;
-        csvContent += "----------------------------------------\n\n";
-    }
-
-    // Add overall total
-    csvContent += `Overall Total:, ${formatNumber(data.overallTotal)}\n`;
-
-    // Create and download the CSV file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "Taxpert_Deductions.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-});
-
 const clearLocalBtn = document.getElementById("clearLocalBtn");
 
 clearLocalBtn.addEventListener("click", () => {
@@ -355,6 +306,8 @@ clearLocalBtn.addEventListener("click", () => {
     deductionContainer.innerHTML = "";
     updateOverallTotal();
 });
+
+window.getAllDeductionsData = getAllDeductionsData;
 
 
 
