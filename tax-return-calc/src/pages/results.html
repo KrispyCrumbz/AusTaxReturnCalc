@@ -33,22 +33,38 @@
     </div>
 
     <div class="brainFormDiv">
-      <h2>Deductions:</h2>
       <div class="deductionsDiv">
         <div class="deductionButtons">
-          <button class="submitButton" id="addCategoryBtn">+ Add Category</button>
-          <button class="submitButton" id="addLonelyDeductionBtn">+ Add Lonely Deduction</button>
+          <button class="submitButton" id="addCategoryBtn">+ Category</button>
+          <button class="submitButton" id="addLonelyDeductionBtn">+ Deduction</button>
         </div>
         <div id="deductionContainer"></div>
 
       </div>
       <div class="deductionTotal">
         <strong>Total Deductions: <span class="numValues">$<span id="overallTotal">0.00</span></span></strong>
-        <button id="saveToLocalBtn">Save to Local Storage</button>
+        <br>
+        <div class="myDiv">
+          <button id="saveToLocalBtn" class="submitButton">Save to Local Storage</button>
+          <button id="saveCsvBtn" class="submitButton">Save as CSV</button>
+          <button id="clearLocalBtn" class="removeDeductionBtn">Clear Local Storage</button>
+        </div>
+
       </div>
 
     </div>
+
+    <div class="resultsDiv">
+      <p><b>Taxable Income after Deductions:</b><br><b class="numValues">$<span id="taxableIncomeAfterDeduction">0.00</span></b></p>
+      <p><b>Medicare Levy Surcharge:</b><br><b class="numValues">$<span id="mlsAfterDeduction">0.00</span></b></p>
+      <p><b>Tax Owed:</b><br><b class="numValues">$<span id="taxOwedAfterDeduction">0.00</span></b></p>
+      <p><b>Tax Return:</b><br><b class="numValues">$<span id="taxReturnAfterDeduction">0.00</span></b></p>
+    </div>
+
+
   </div>
+
+
 
 </div>
 
@@ -58,6 +74,7 @@
 
 <script type="module" src="../js/calculate.js"></script>
 <script type="module" src="../js/deductions.js"></script>
+<scrip type="module" src="../js/saveCSV.js"></scrip>
 
 </body>
 </html>
