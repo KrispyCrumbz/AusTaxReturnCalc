@@ -14,7 +14,7 @@ saveXlsxBtn.addEventListener("click", () => {
 
     // ===== Build top rows =====
     wsData.push(["TAXPERT SUMMARY"]); // Row 0
-    wsData.push(["Yash Kishore | yashkishore132@gmail.com"]); // Row 1
+    wsData.push(["Created by Yash Kishore | yashkishore132@gmail.com"]); // Row 1
     wsData.push([]); // Row 2 empty space
 
     // Helper to format AU date
